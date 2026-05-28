@@ -61,4 +61,4 @@ jobs:
           ansible-playbook \
             -i ansible/inventory.ini \
             ansible/playbook.yml \
-            --extra-vars "mongo_uri='${{ secrets.MONGO_URI }}' db_name='${{ secrets.DB_NAME }}'"
+            --extra-vars "mongo_uri='${{ secrets.MONGO_URI }}' secret_key='${{ secrets.SECRET_KEY }}'"

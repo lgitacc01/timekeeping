@@ -30,7 +30,7 @@
         dest: /root/TIMEKEEPER/backend/.env
         content: |
           MONGO_URI={{ mongo_uri }}
-          DB_NAME={{ db_name }}
+          SECRET_KEY={{ secret_key }}
 
     - name: Build Backend Image
       command: docker build -t timekeeper-backend /root/TIMEKEEPER/backend
