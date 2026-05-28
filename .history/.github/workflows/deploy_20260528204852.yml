@@ -1,0 +1,55 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: |
+          terraform apply -auto-approve \
+            -var="do_token=${{ secrets.DO_TOKEN }}" \
+            -var="root_password=${{ secrets.ROOT_PASSWORD }}"
+
+      - name: Get Droplet IP
+        id: droplet
+        working-directory: terraform
+        run: |
+          echo "ip=$(terraform output -raw droplet_ip)" >> $GITHUB_OUTPUT
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install ansible sshpass -y
+
+      - name: Create Inventory
+        run: |
+          echo "[backend]" > ansible/inventory.ini
+          echo "${{ steps.droplet.outputs.ip }} ansible_user=root ansible_ssh_pass=${{ secrets.ROOT_PASSWORD }}" >> ansible/inventory.ini
+
+      - name: Run Ansible
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+        run: |
+          ansible-playbook \
+            -i ansible/inventory.ini \
+            ansible/playbook.yml \
+            --extra-vars "mongo_uri='${{ secrets.MONGO_URI }}' secret_key='${{ secrets.SECRET_KEY }}'"

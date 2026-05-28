@@ -1,0 +1,47 @@
+- hosts: backend
+
+  become: true
+
+  tasks:
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker.io
+          - git
+        update_cache: yes
+        state: present
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Clone Project
+      git:
+        repo: "https://github.com/YOUR_USERNAME/YOUR_REPO.git"
+        dest: /root/TIMEKEEPER
+        version: main
+
+    - name: Create .env
+      copy:
+        dest: /root/TIMEKEEPER/backend/.env
+        content: |
+          MONGO_URI={{ mongo_uri }}
+          SECRET_KEY={{ secret_key }}
+
+    - name: Build Backend Image
+      command: docker build -t timekeeper-backend /root/TIMEKEEPER/backend
+
+    - name: Remove old container
+      ignore_errors: true
+      command: docker rm -f flask_backend
+
+    - name: Run Backend Container
+      command: >
+        docker run -d
+        --name flask_backend
+        -p 5000:5000
+        --env-file /root/TIMEKEEPER/backend/.env
+        timekeeper-backend
