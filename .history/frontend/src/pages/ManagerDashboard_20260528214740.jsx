@@ -13,7 +13,7 @@ function ManagerDashboard() {
     const fetchData = async () => {
 
         const res = await axios.get(
-            "/api/manager-dashboard"
+            "http://localhost:5000/manager-dashboard"
         )
 
         setEmployees(res.data)
@@ -28,7 +28,7 @@ function ManagerDashboard() {
         try {
 
             const res = await axios.post(
-                "/api/checkin",
+                "http://165.245.178.80:5000/checkin",
                 {
                     username: user.username
                 }

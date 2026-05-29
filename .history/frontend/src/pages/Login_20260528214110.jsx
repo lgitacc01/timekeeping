@@ -16,7 +16,7 @@ function Login() {
         try {
 
             const res = await axios.post(
-                "/api/login",
+                "http://165.245.178.80:5000/login",
                 {
                     username,
                     password

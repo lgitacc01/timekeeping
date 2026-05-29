@@ -8,7 +8,7 @@ function EmployeeDashboard() {
 
   const fetchAttendance = async () => {
     const res = await axios.get(
-      `/api/attendance/${user.username}`
+      `http://165.245.178.80:5000/attendance/${user.username}`
     )
 
     setRecords(res.data)
